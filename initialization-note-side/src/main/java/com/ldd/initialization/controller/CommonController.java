@@ -75,7 +75,7 @@ public class CommonController {
     @SaIgnore
     @PostMapping("/login")
     public Result<String> login(@RequestBody LoginDTO request) {
-        String token = userService.login(request.getPhone(), request.getPassword(), request.getCaptcha(), request.getCaptchaId(), request.getRoleType());
+        String token = userService.login(request.getPhone(), request.getPassword(), request.getCaptcha(), request.getCaptchaId());
         return Result.success(token);
     }
 

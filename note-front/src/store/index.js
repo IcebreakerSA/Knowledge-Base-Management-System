@@ -1,18 +1,20 @@
 import { defineStore } from 'pinia'
 import { getUserInfo } from '@/api'
+import { setRequestToken } from '@/api/request'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
     userInfo: null,
-    token: localStorage.getItem('token') || ''
+    token: ''
   }),
   getters: {
-    isLoggedIn: (state) => !!state.token
+    isLoggedIn: (state) => !!state.token,
+    isAdmin: (state) => state.userInfo?.roleType === 1
   },
   actions: {
     setToken(token) {
       this.token = token
-      localStorage.setItem('token', token)
+      setRequestToken(token)
     },
     setUserInfo(userInfo) {
       this.userInfo = userInfo
@@ -32,7 +34,7 @@ export const useUserStore = defineStore('user', {
     logout() {
       this.token = ''
       this.userInfo = null
-      localStorage.removeItem('token')
+      setRequestToken('')
     }
   }
 })

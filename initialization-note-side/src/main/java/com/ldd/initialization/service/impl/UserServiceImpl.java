@@ -12,6 +12,8 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ldd.initialization.config.exception.BizException;
+import com.ldd.initialization.domain.Note;
+import com.ldd.initialization.domain.Notebook;
 import com.ldd.initialization.domain.User;
 import com.ldd.initialization.enums.RoleType;
 import com.ldd.initialization.enums.StatusEnum;
@@ -21,6 +23,8 @@ import com.ldd.initialization.vo.CaptchaVO;
 import com.ldd.initialization.vo.UserInfoVO;
 import io.github.yindz.random.RandomSource;
 import org.springframework.beans.BeanUtils;
+import com.ldd.initialization.mapper.NoteMapper;
+import com.ldd.initialization.mapper.NotebookMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -40,6 +44,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         implements UserService {
     @Autowired
     private StringRedisTemplate redisTemplate; // 用于存储验证码
+
+    @Autowired
+    private NoteMapper noteMapper;
+
+    @Autowired
+    private NotebookMapper notebookMapper;
 
     private static final String CAPTCHA_PREFIX = "captcha:";
 
@@ -89,7 +99,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public String login(String phone, String password, String captcha, String captchaId, int roleType) {
+    public String login(String phone, String password, String captcha, String captchaId) {
         // 校验验证码
         String storedCaptcha = redisTemplate.opsForValue().get(CAPTCHA_PREFIX + captchaId);
 //        if (storedCaptcha == null || !storedCaptcha.equalsIgnoreCase(captcha)) {
@@ -97,8 +107,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 //        }
 
         // 查询用户
-        User user = getOne(new QueryWrapper<User>().eq("phone", phone)
-                .eq("role_type", roleType));
+        User user = getOne(new QueryWrapper<User>().eq("phone", phone));
         if (user == null) {
             throw new BizException("手机号或密码错误");
         }
@@ -211,6 +220,31 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .in(User::getId, userIds)
                 .set(User::getStatus, StatusEnum.ENABLED.getCode()) // status=1 表示启用
                 .set(User::getUpdateTime, new Date()));
+    }
+
+    @Override
+    public void deleteUser(Long userId) {
+        User user = getById(userId);
+        if (user == null) {
+            throw new BizException("用户不存在");
+        }
+        // 删除用户笔记
+        noteMapper.delete(new QueryWrapper<Note>().eq("user_id", userId));
+        // 删除用户笔记本
+        notebookMapper.delete(new QueryWrapper<Notebook>().eq("user_id", userId));
+        // 删除用户
+        removeById(userId);
+    }
+
+    @Override
+    public void updateUserRole(Long userId, Integer roleType) {
+        User user = getById(userId);
+        if (user == null) {
+            throw new BizException("用户不存在");
+        }
+        user.setRoleType(roleType);
+        user.setUpdateTime(new Date());
+        updateById(user);
     }
 
 

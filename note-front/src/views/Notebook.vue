@@ -15,6 +15,8 @@
             <el-icon class="user-menu"><MoreFilled /></el-icon>
             <template #dropdown>
               <el-dropdown-menu>
+                <el-dropdown-item command="profile">个人信息</el-dropdown-item>
+                <el-dropdown-item v-if="userStore.isAdmin" command="admin">管理后台</el-dropdown-item>
                 <el-dropdown-item command="logout">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -308,6 +310,38 @@
         <el-button type="primary" @click="handleCreateNotebook">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 个人信息编辑对话框 -->
+    <el-dialog v-model="showProfileDialog" title="个人信息" width="500px">
+      <el-form :model="profileForm" label-width="80px">
+        <el-form-item label="用户名">
+          <el-input v-model="profileForm.username" placeholder="请输入用户名" />
+        </el-form-item>
+        <el-form-item label="真实姓名">
+          <el-input v-model="profileForm.realName" placeholder="请输入真实姓名" />
+        </el-form-item>
+        <el-form-item label="性别">
+          <el-select v-model="profileForm.gender" style="width: 100%">
+            <el-option label="未设置" :value="0" />
+            <el-option label="男" :value="1" />
+            <el-option label="女" :value="2" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="出生日期">
+          <el-date-picker
+            v-model="profileForm.birthDate"
+            type="date"
+            placeholder="选择出生日期"
+            style="width: 100%"
+            value-format="YYYY-MM-DD"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showProfileDialog = false">取消</el-button>
+        <el-button type="primary" @click="handleSaveProfile">保存</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -340,6 +374,7 @@ import {
   deleteNote,
   toggleNotePin,
   addNoteToKnowledgeBase,
+  updateUserProfile,
   logout
 } from '@/api'
 import DocumentManager from '@/components/DocumentManager.vue'
@@ -799,7 +834,11 @@ const handleNotebookCommand = async (command, notebook) => {
 }
 
 const handleUserCommand = async (command) => {
-  if (command === 'logout') {
+  if (command === 'profile') {
+    showProfileDialog.value = true
+  } else if (command === 'admin') {
+    router.push('/admin')
+  } else if (command === 'logout') {
     try {
       await logout()
       userStore.logout()
@@ -810,6 +849,55 @@ const handleUserCommand = async (command) => {
     }
   }
 }
+
+// 个人信息编辑相关
+const showProfileDialog = ref(false)
+const profileForm = reactive({
+  username: '',
+  realName: '',
+  gender: 0,
+  birthDate: ''
+})
+
+// 打开个人信息对话框时初始化数据
+const openProfileDialog = () => {
+  const user = userStore.userInfo
+  if (user) {
+    profileForm.username = user.username || ''
+    profileForm.realName = user.realName || ''
+    profileForm.gender = user.gender || 0
+    profileForm.birthDate = user.birthDate || ''
+  }
+}
+
+// 监听对话框打开，填充数据
+watch(showProfileDialog, (val) => {
+  if (val) openProfileDialog()
+})
+
+const handleSaveProfile = async () => {
+  try {
+    await updateUserProfile({
+      username: profileForm.username,
+      realName: profileForm.realName,
+      gender: profileForm.gender,
+      birthDate: profileForm.birthDate
+    })
+    // 更新本地用户信息
+    if (userStore.userInfo) {
+      userStore.userInfo.username = profileForm.username
+      userStore.userInfo.realName = profileForm.realName
+      userStore.userInfo.gender = profileForm.gender
+      userStore.userInfo.birthDate = profileForm.birthDate
+    }
+    showProfileDialog.value = false
+    ElMessage.success('个人信息更新成功')
+  } catch (error) {
+    console.error('更新个人信息失败:', error)
+    ElMessage.error('更新失败')
+  }
+}
+
 
 const loadNotebooks = async () => {
   try {

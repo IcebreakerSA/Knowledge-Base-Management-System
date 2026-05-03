@@ -34,7 +34,7 @@ public interface UserService extends IService<User> {
      * @param captchaId 验证码ID
      * @return Token
      */
-    String login(String phone, String password, String captcha, String captchaId,int roleType);
+    String login(String phone, String password, String captcha, String captchaId);
 
     User getUserInfo(Long userId);
 
@@ -50,4 +50,8 @@ public interface UserService extends IService<User> {
     UserInfoVO getUserInfoById(Long userId);
 
     void batchEnableUsers(List<Long> userIds);
+
+    void deleteUser(Long userId);
+
+    void updateUserRole(Long userId, Integer roleType);
 }

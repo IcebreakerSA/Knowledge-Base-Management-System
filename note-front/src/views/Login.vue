@@ -92,8 +92,7 @@ const loginForm = reactive({
   phone: '',
   password: '',
   captcha: '',
-  captchaId: '',
-  roleType: 2
+  captchaId: ''
 })
 
 const captchaData = reactive({
@@ -145,8 +144,13 @@ const handleLogin = async () => {
     
     // 获取用户信息
     await userStore.fetchUserInfo()
-    
-    router.push('/notebook')
+
+    // 管理员跳转管理后台，普通用户跳转笔记本
+    if (userStore.isAdmin) {
+      router.push('/admin')
+    } else {
+      router.push('/notebook')
+    }
     
   } catch (error) {
     getCaptchaImage() // 重新获取验证码

@@ -1,6 +1,13 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 
+// 模块级token，由store设置
+let currentToken = ''
+
+export function setRequestToken(token) {
+  currentToken = token || ''
+}
+
 // 创建axios实例
 const request = axios.create({
   baseURL: '/api',
@@ -10,10 +17,8 @@ const request = axios.create({
 // 请求拦截器
 request.interceptors.request.use(
   config => {
-    // 从localStorage获取token
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+    if (currentToken) {
+      config.headers.Authorization = `Bearer ${currentToken}`
     }
     return config
   },
@@ -27,12 +32,12 @@ request.interceptors.response.use(
   response => {
     console.log('API响应:', response) // 调试信息
     const res = response.data
-    
+
     // 如果响应没有code字段，直接返回整个response对象
     if (res.code === undefined) {
       return response
     }
-    
+
     // 如果有code字段且为0，返回整个response对象
     if (res.code === 0) {
       return response
@@ -48,4 +53,4 @@ request.interceptors.response.use(
   }
 )
 
-export default request 
+export default request

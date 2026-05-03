@@ -21,6 +21,12 @@ const routes = [
     name: 'Notebook',
     component: () => import('@/views/Notebook.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/admin',
+    name: 'Admin',
+    component: () => import('@/views/Admin.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
   }
 ]
 
@@ -32,7 +38,7 @@ const router = createRouter({
 // 路由守卫
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
-  
+
   if (to.meta.requiresAuth) {
     if (!userStore.isLoggedIn) {
       next('/login')
@@ -44,6 +50,11 @@ router.beforeEach(async (to, from, next) => {
           next('/login')
           return
         }
+      }
+      // 检查是否需要管理员权限
+      if (to.meta.requiresAdmin && !userStore.isAdmin) {
+        next('/notebook')
+        return
       }
       next()
     }

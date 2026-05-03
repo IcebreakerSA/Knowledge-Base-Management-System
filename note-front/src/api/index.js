@@ -34,6 +34,15 @@ export const getUserInfo = () => {
   })
 }
 
+// 更新用户个人信息
+export const updateUserProfile = (data) => {
+  return request({
+    url: '/common/user/update',
+    method: 'put',
+    data
+  })
+}
+
 // 退出登录
 export const logout = () => {
   return request({
@@ -336,6 +345,106 @@ export const getPersonalFileList = () => {
   return request({
     url: '/shared-knowledge-base/personal-files',
     method: 'get'
+  })
+}
+
+// 管理员接口
+export const getAdminDashboard = () => {
+  return request({
+    url: '/admin/dashboard',
+    method: 'get'
+  })
+}
+
+export const getAdminUsers = (params) => {
+  return request({
+    url: '/admin/users',
+    method: 'get',
+    params
+  })
+}
+
+export const getAdminUserDetail = (id) => {
+  return request({
+    url: `/admin/users/${id}`,
+    method: 'get'
+  })
+}
+
+export const updateUserStatus = (id, status) => {
+  return request({
+    url: `/admin/users/${id}/status`,
+    method: 'put',
+    data: { status }
+  })
+}
+
+export const updateUserRole = (id, roleType) => {
+  return request({
+    url: `/admin/users/${id}/role`,
+    method: 'put',
+    data: { roleType }
+  })
+}
+
+export const deleteAdminUser = (id) => {
+  return request({
+    url: `/admin/users/${id}`,
+    method: 'delete'
+  })
+}
+
+export const updateAdminUser = (id, data) => {
+  return request({
+    url: `/admin/users/${id}`,
+    method: 'put',
+    data
+  })
+}
+
+// 管理员知识库管理接口
+export const getAdminKnowledgeBases = (params) => {
+  return request({
+    url: '/admin/knowledge-bases',
+    method: 'get',
+    params
+  })
+}
+
+export const updateKnowledgeBaseStatus = (id, status) => {
+  return request({
+    url: `/admin/knowledge-bases/${id}/status`,
+    method: 'put',
+    data: { status }
+  })
+}
+
+export const deleteAdminKnowledgeBase = (id) => {
+  return request({
+    url: `/admin/knowledge-bases/${id}`,
+    method: 'delete'
+  })
+}
+
+export const getAdminKnowledgeBaseMembers = (id) => {
+  return request({
+    url: `/admin/knowledge-bases/${id}/members`,
+    method: 'get'
+  })
+}
+
+export const removeKnowledgeBaseMember = (kbId, userId) => {
+  return request({
+    url: `/admin/knowledge-bases/${kbId}/members/${userId}`,
+    method: 'delete'
+  })
+}
+
+export const addKnowledgeBaseMember = (id, userId) => {
+  return request({
+    url: `/admin/knowledge-bases/${id}/members`,
+    method: 'post',
+    data: { userId }
   })
 }
 

@@ -23,8 +23,4 @@ public class LoginDTO {
 
     @NotBlank(message = "验证码ID不能为空")
     private String captchaId; // 用于标识验证码的唯一ID
-
-    @NotBlank(message = "用户角色不能为空")
-    @Pattern(regexp = "^(1|2|3)$", message = "角色类型必须为1(求职者)、2(招聘者)、3(管理员)")
-    private Integer roleType;
 }
