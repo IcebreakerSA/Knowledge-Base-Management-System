@@ -1,0 +1,29 @@
+本地运行指南：
+第一步：Docker 安装 PostgreSQL（包含 pgvector 扩展）
+使用以下 Docker 命令安装支持 pgvector 扩展的 PostgreSQL 数据库：
+
+docker run -d \
+  --name pgvector-container \
+  -e POSTGRES_PASSWORD=123456 \
+  -p 5432:5432 \
+  pgvector/pgvector:pg16
+--name pgvector-container：容器名称。
+-e POSTGRES_PASSWORD=123456：设置 PostgreSQL 的 postgres 用户密码。
+-p 5432:5432：将主机的 5432 端口映射到容器的 PostgreSQL 服务端口。
+pgvector/pgvector:pg16：使用包含 pgvector 扩展的 PostgreSQL 镜像（基于 PostgreSQL 16）。
+后端
+修改数据库的地址
+第二步：替换 AI 密钥
+请将默认的 AI 密钥替换为你自己的密钥。
+你也可以选择使用本地部署模型，以避免使用在线 API 密钥。
+
+第三步：替换 Redis 地址
+请将默认的 Redis 连接地址替换为你自己的 Redis 实例地址。
+
+例如：
+
+默认地址：redis://localhost:6379
+替换为：redis://<your_redis_host>:<your_redis_port>
+
+第三步：前端依赖
+npm run dev运行
