@@ -1,0 +1,113 @@
+# docker-compose.yml (基于你的版本进行优化)
+
+version: '3.8'
+
+services:
+  # --------------------
+  #   数据库服务
+  # --------------------
+  postgres:
+    # 你的配置保持不变，它是正确的
+    image: ankane/pgvector:latest # 提示: 在生产环境中，建议固定到一个具体的版本号，如 'ankane/pgvector:v0.5.1'，避免自动更新带来的风险
+    environment:
+      POSTGRES_DB: note
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: a123456789
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./initialization-note-side/sql:/docker-entrypoint-initdb.d
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # 【优化】: 增加重启策略，保证容器异常退出后能自动重启
+    restart: unless-stopped
+
+  # --------------------
+  #   Redis 服务
+  # --------------------
+  redis:
+    image: redis:7-alpine # 提示: 使用一个具体的版本号（如 7-alpine）比 'alpine' 更稳定
+    command: redis-server --requirepass a123456789
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    # 【优化】: 增加 Redis 健康检查，让后端服务可以更可靠地等待 Redis 完全就绪
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "a123456789", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # 【优化】: 增加重启策略
+    restart: unless-stopped
+
+  # --------------------
+  #   后端 Spring Boot 服务
+  # --------------------
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    ports:
+      # Format: "HOST_PORT:CONTAINER_PORT"
+      # This maps port 8889 on your computer (host) to port 8889 inside the container.
+      - "8889:8889"
+    volumes:
+      - ./config/application-docker.yml:/app/config/application-docker.yml
+      - upload_data:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        # 【优化】: 使用 service_healthy 替代 service_started，确保 Redis 完全可用
+        condition: service_healthy
+    command: ["java", "-jar", "app.jar", "--spring.config.location=file:/app/config/application-docker.yml"]
+    # 【优化】: 增加重启策略
+    restart: unless-stopped
+
+  # --------------------
+  #   前端构建服务 (职责清晰，很好！)
+  # --------------------
+  frontend:
+    # 这是一个构建服务，它的任务是运行一次并填充数据卷，然后退出。这是正确的。
+    # 所以它不需要重启策略。
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    volumes:
+      # 假设你的 Dockerfile.frontend 将构建产物放在了 /app/build 目录
+      - frontend_build:/static_files
+
+  # --------------------
+  #   Nginx 反向代理服务
+  # --------------------
+  nginx:
+    image: nginx:1.25-alpine # 提示: 使用一个具体的版本号比 'alpine' 更稳定
+    ports:
+      - "3000:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      # 从 frontend 服务中获取构建好的静态文件 (只读)
+      - frontend_build:/var/www/frontend:ro
+      # 【关键修正】: 增加对上传文件的卷挂载，让 Nginx 能够直接访问和提供上传文件的服务
+      - upload_data:/var/www/uploads:ro
+    depends_on:
+      - frontend
+      - backend
+    # 【优化】: 增加重启策略
+    restart: unless-stopped
+
+# --------------------
+#   数据卷定义 (你的定义是正确的)
+# --------------------
+volumes:
+  postgres_data:
+  redis_data:
+  upload_data:
+  frontend_build:

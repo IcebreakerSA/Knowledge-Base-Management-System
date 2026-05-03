@@ -1,0 +1,131 @@
+server:
+  port: 8889
+
+spring:
+#  profiles:
+#    active: dev
+  #  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    username: ro1ot
+#    password: a13123412159123243422140
+#    url: jdbc:mysql://wx12345-code.fun:3306/hire
+  datasource:
+      driver-class-name: org.postgresql.Driver
+      username: postgres
+      password: 123456
+      url: jdbc:postgresql://localhost:5432/hire
+  # redis配置
+  data:
+    redis:
+      database: 2
+      host: localhost
+      port: 6379
+      password: 123456
+      connect-timeout: 100s
+      lettuce:
+        pool:
+          max-active: 200
+          max-wait: -1ms
+          max-idle: 10
+          min-idle: 0
+
+  # 异步配置
+  mvc:
+    async:
+      request-timeout: 30000  # 异步请求超时时间（30秒）
+
+sa-token:
+  token-name: Authorization
+  token-prefix: Bearer
+  jwt-secret-key: 'd0!doc15415B0*4G0`'
+  timeout: 12592000
+  
+
+
+dromara:
+  x-file-storage: #文件存储配置
+    default-platform: local-plus #默认使用的存储平台
+    local-plus:
+      - platform: local-plus # 存储平台标识
+        enable-storage: true  #启用存储
+        enable-access: true #启用访问（线上请使用 Nginx 配置，效率更高）
+        domain: http://127.0.0.1:8889/file/ # 访问域名，例如："http://127.0.0.1:8030/file/"，注意后面要和 path-patterns 保持一致，"/"结尾，本地存储建议使用相对路径，方便后期更换域名
+        base-path: local-plus/ # 基础路径
+        path-patterns: /file/** # 访问路径
+        storage-path: D:/Temp/ # 存储路径
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true # 开启下划线转驼峰
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+langchain4j:
+  open-ai:
+    chat-model:
+      base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+      api-key: sk-c7ed775f505c4b2192127adf888ea2ee
+      model-name: qwen-plus
+      log-requests: true
+      log-responses: true
+
+    streaming-chat-model:
+      base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+      api-key: sk-c7ed775f505c4b2192127adf888ea2ee
+      model-name: qwen-plus
+      log-requests: true
+      log-responses: true
+    embedding-model:
+      base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+      api-key: sk-c7ed775f505c4b2192127adf888ea2ee
+      model-name: text-embedding-v3
+      log-requests: true
+      log-responses: true
+      max-segments-per-batch: 10
+#  ollama:
+#    chat-model:
+#      base-url: http://192.168.1.37:1234/v1
+#      model-name: qwen1.5-7b-chat
+
+
+
+# 线程池配置
+async:
+  executor:
+    # 核心线程数
+    core-pool-size: 8
+    # 最大线程数  
+    max-pool-size: 16
+    # 队列容量
+    queue-capacity: 200
+    # 线程名前缀
+    thread-name-prefix: "Async-Chat-"
+    # 线程空闲时间（秒）
+    keep-alive-seconds: 60
+
+# 流式聊天速率控制配置
+chat:
+  stream:
+    # 基础延迟时间（毫秒）- 每个数据块之间的最小间隔
+    base-delay-ms: 50
+    # 最大延迟时间（毫秒）- 自适应延迟的上限
+    max-delay-ms: 200
+    # 内容长度阈值 - 超过此长度的内容块会增加额外延迟
+    chunk-size-threshold: 10
+    # 速率限制窗口大小 - 用于平滑传输的滑动窗口大小
+    rate-limit-window: 20
+    # 滑动窗口内的延迟时间（毫秒）- 用于平滑传输的小延迟
+    window-delay-ms: 10
+    # 背压缓冲区大小 - 防止客户端处理不及时的缓冲区大小
+    backpressure-buffer-size: 100
+    # 内容延迟系数 - 用于计算基于内容长度的延迟时间
+    content-delay-factor: 2.0
+    # 索引延迟减少系数 - 前几个块的延迟减少量
+    index-delay-reduction: 5
+    # 启用速率控制 - 全局开关，可以完全关闭速率控制
+    enable-rate-control: true
+    # 启用自适应延迟 - 是否根据内容长度动态调整延迟
+    enable-adaptive-delay: true
+    # 启用平滑传输 - 是否使用滑动窗口平滑传输
+    enable-smooth-transmission: true
+    # 启用日志记录 - 是否记录速率控制的详细日志（建议开发环境启用）
+    enable-logging: false
+

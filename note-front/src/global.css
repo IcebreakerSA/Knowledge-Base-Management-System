@@ -1,0 +1,113 @@
+/* 解决切换 tab 时宽度抖动：滚动条常驻 */
+html, body {
+  overflow-y: scroll !important;   /* 始终保留滚动条 */
+  width: 100%;
+  height: 100%;
+}
+
+/* 移除body的flex居中布局，避免左右留白 */
+body {
+  display: block !important;
+  place-items: initial !important;
+  margin: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 10%, #f093fb 50%, #f5576c 90%, #4facfe 100%);
+  min-height: 100vh;
+}
+
+/* 确保主要容器占满宽度 */
+#app, .main-container, .tab-container, .main-tabs {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+#app {
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-align: initial !important;
+}
+
+/* Element Plus 全局样式美化 */
+.el-button {
+  border-radius: 16px !important;
+  font-weight: 600 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: none !important;
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.2) !important;
+}
+
+.el-button--primary {
+  background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%) !important;
+  color: white !important;
+}
+
+.el-button--primary:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4) !important;
+}
+
+.el-button--success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+}
+
+.el-button--warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+}
+
+.el-button--danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+}
+
+.el-button--info {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%) !important;
+}
+
+.el-input__wrapper {
+  border-radius: 16px !important;
+  border: 2px solid rgba(139, 92, 246, 0.1) !important;
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.1) !important;
+  transition: all 0.3s ease !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.el-input__wrapper:hover {
+  border-color: rgba(139, 92, 246, 0.3) !important;
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.2) !important;
+}
+
+.el-input__wrapper.is-focus {
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2) !important;
+}
+
+.el-select .el-input__wrapper {
+  border-radius: 16px !important;
+}
+
+.el-tag {
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  border: none !important;
+  padding: 4px 12px !important;
+}
+
+.el-avatar {
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.2) !important;
+}
+
+.el-dialog {
+  border-radius: 24px !important;
+  overflow: hidden !important;
+  box-shadow: 0 20px 60px rgba(139, 92, 246, 0.3) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+.el-card {
+  border-radius: 20px !important;
+  border: 1px solid rgba(139, 92, 246, 0.1) !important;
+  box-shadow: 0 10px 40px rgba(139, 92, 246, 0.1) !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%) !important;
+  backdrop-filter: blur(20px) !important;
+}

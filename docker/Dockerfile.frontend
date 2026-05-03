@@ -1,0 +1,35 @@
+# Dockerfile.frontend
+# 职责：构建前端静态文件，并提供给 Nginx 使用
+
+# --- 阶段 1: 构建环境 ---
+# 使用 Node.js 镜像来执行构建命令
+FROM node:20-alpine AS builder
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制 package.json 等依赖描述文件
+# 你的 Dockerfile 显示源代码在 note-front 目录中，所以我们从那里复制
+COPY note-front/package*.json ./
+
+# 安装项目依赖
+RUN npm install
+
+# 复制所有前端源代码
+COPY note-front/ ./
+
+# 执行构建命令
+RUN npm run build
+
+
+# --- 阶段 2: 生产环境 ---
+# 这是一个“数据容器”阶段，我们只保留构建产物
+# 使用一个极小的 alpine 镜像，因为它不需要运行任何程序
+FROM alpine:latest
+
+# 设置一个工作目录，方便复制
+WORKDIR /static_files
+
+# 从“构建环境”(builder)中，只把构建好的 dist 目录内容复制过来
+# 你的构建产物在 /app/dist 目录下
+COPY --from=builder /app/dist .
