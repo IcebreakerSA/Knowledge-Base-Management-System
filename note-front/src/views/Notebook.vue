@@ -218,6 +218,7 @@
                     v-model="currentNote.contentMd"
                     height="500px"
                     placeholder="开始写作..."
+                    :upload-image="handleUploadImage"
                     @change="onEditorChange"
                     @blur="autoSave"
                 />
@@ -374,6 +375,7 @@ import {
   deleteNote,
   toggleNotePin,
   addNoteToKnowledgeBase,
+  uploadFile,
   updateUserProfile,
   logout
 } from '@/api'
@@ -558,6 +560,23 @@ const onEditorChange = (text, html) => {
     currentNote.value.contentMd = text
     currentNote.value.contentHtml = html
     debouncedAutoSave()
+  }
+}
+
+const handleUploadImage = async (event, insertImage, files) => {
+  const file = (files && files[0]) || (event && event.target && event.target.files && event.target.files[0])
+  if (!file) return
+  try {
+    const response = await uploadFile(file)
+    const data = response.data
+    if (data.code === 0 && data.data && data.data.fileUrl) {
+      insertImage(data.data.fileUrl)
+    } else {
+      ElMessage.error('图片上传失败')
+    }
+  } catch (error) {
+    console.error('图片上传失败:', error)
+    ElMessage.error('图片上传失败')
   }
 }
 

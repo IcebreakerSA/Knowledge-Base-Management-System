@@ -51,17 +51,14 @@ export const logout = () => {
   })
 }
 
-// 文件上传
+// 文件上传（图片、文档等通用上传）
 export const uploadFile = (file) => {
   const formData = new FormData()
   formData.append('file', file)
   return request({
     url: '/common/file/upload',
     method: 'post',
-    data: formData,
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
+    data: formData
   })
 }
 

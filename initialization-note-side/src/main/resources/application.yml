@@ -48,11 +48,11 @@ dromara:
     local-plus:
       - platform: local-plus # 存储平台标识
         enable-storage: true  #启用存储
-        enable-access: true #启用访问（线上请使用 Nginx 配置，效率更高）
-        domain: http://127.0.0.1:8889/file/ # 访问域名，例如："http://127.0.0.1:8030/file/"，注意后面要和 path-patterns 保持一致，"/"结尾，本地存储建议使用相对路径，方便后期更换域名
+        enable-access: false  # 关闭内置访问，由 FileServingFilter 接管文件服务
+        domain: http://127.0.0.1:8889/file/ # 访问域名，127.0.0.1即本机，部署到任意电脑均适用
         base-path: local-plus/ # 基础路径
         path-patterns: /file/** # 访问路径
-        storage-path: D:/Temp/ # 存储路径
+        storage-path: ${user.dir}/uploads/ # 存储到应用根目录下的 uploads，跨平台一致
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true # 开启下划线转驼峰

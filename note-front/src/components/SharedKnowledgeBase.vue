@@ -206,7 +206,16 @@
                 </div>
               </div>
               <div class="kb-actions">
-                <el-button @click="showUploadDialog = true" type="primary" class="modern-btn">
+                <el-button
+                    v-if="canEditKnowledgeBase"
+                    @click="editKnowledgeBase(currentKnowledgeBase)"
+                    type="primary"
+                    class="modern-btn"
+                >
+                  <el-icon><Edit /></el-icon>
+                  编辑信息
+                </el-button>
+                <el-button @click="showUploadDialog = true" type="success" class="modern-btn">
                   <el-icon><Upload /></el-icon>
                   上传文件
                 </el-button>
@@ -572,8 +581,16 @@
               placeholder="请输入知识库描述"
           />
         </el-form-item>
-        <el-form-item label="封面图片" prop="coverUrl">
-          <el-input v-model="knowledgeBaseForm.coverUrl" placeholder="请输入封面图片URL" />
+        <el-form-item label="封面图片">
+          <div class="cover-upload-area" @click="coverInput.click()">
+            <img v-if="knowledgeBaseForm.coverUrl" :src="knowledgeBaseForm.coverUrl" class="cover-preview-img" />
+            <div v-else class="cover-upload-placeholder">
+              <el-icon size="28"><Plus /></el-icon>
+              <span>上传封面</span>
+            </div>
+          </div>
+          <input ref="coverInput" type="file" accept="image/*" style="display:none" @change="handleCoverFileChange" />
+          <el-button v-if="knowledgeBaseForm.coverUrl" type="danger" size="small" style="margin-top:8px" @click="knowledgeBaseForm.coverUrl = ''">移除图片</el-button>
         </el-form-item>
         <el-form-item label="公开设置">
           <el-switch
@@ -893,7 +910,8 @@ import {
   getPersonalFileList,
   sharedKnowledgeBaseChatStream,
   getKnowledgeBaseMembers,
-  deleteKnowledgeBaseMember
+  deleteKnowledgeBaseMember,
+  uploadFile
 } from '@/api'
 
 // Store
@@ -997,6 +1015,7 @@ const uploadFileList = ref([])
 // 表单引用
 const knowledgeBaseFormRef = ref()
 const joinFormRef = ref()
+const coverInput = ref(null)
 
 // 表单验证规则
 const knowledgeBaseRules = {
@@ -1264,6 +1283,24 @@ const handleFileCurrentChange = (current) => {
 
 const handleFileSelect = (file) => {
   uploadFileList.value = [...uploadFileList.value, file]
+}
+
+const handleCoverFileChange = async (e) => {
+  const file = e.target.files[0]
+  if (!file) return
+  try {
+    const response = await uploadFile(file)
+    const data = response.data
+    if (data.code === 0 && data.data && data.data.fileUrl) {
+      knowledgeBaseForm.coverUrl = data.data.fileUrl
+      ElMessage.success('封面上传成功')
+    } else {
+      ElMessage.error('封面上传失败')
+    }
+  } catch (error) {
+    console.error('封面上传失败:', error)
+    ElMessage.error('封面上传失败')
+  }
 }
 
 const handleRemoveFile = (file) => {
@@ -2841,6 +2878,47 @@ const deleteMember = async (member) => {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+/* 封面上传样式 */
+.cover-upload-area {
+  width: 200px;
+  height: 120px;
+  border: 2px dashed rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(139, 92, 246, 0.03);
+}
+
+.cover-upload-area:hover {
+  border-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.15);
+}
+
+.cover-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cover-upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.cover-upload-placeholder .el-icon {
+  color: #8b5cf6;
 }
 
 /* 响应式优化 */

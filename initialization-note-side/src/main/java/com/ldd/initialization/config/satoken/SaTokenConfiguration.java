@@ -1,6 +1,7 @@
 package com.ldd.initialization.config.satoken;
 
 import cn.dev33.satoken.interceptor.SaInterceptor;
+import cn.dev33.satoken.router.SaRouter;
 import cn.dev33.satoken.stp.StpInterface;
 import cn.dev33.satoken.stp.StpUtil;
 import org.springframework.context.annotation.Configuration;
@@ -23,15 +24,17 @@ public class SaTokenConfiguration implements StpInterface, WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // 注册 Sa-Token 拦截器，校验规则为 StpUtil.checkLogin() 登录校验。
-        registry.addInterceptor(new SaInterceptor(handle -> StpUtil.checkLogin()))
-                .addPathPatterns("/**") // 拦截所有路径
-                .excludePathPatterns(
-                        "/api/common/login",
-                        "/api/common/register",
-                        "/api/common/captcha",
-                        "/api/common/file/upload"
-                );
+        // 注册 Sa-Token 拦截器：只对 /api/** 校验登录，其余路径（含 /file/**）放行
+        registry.addInterceptor(new SaInterceptor(handle -> {
+            SaRouter
+                .match("/api/**")
+                .notMatch(
+                    "/api/common/login",
+                    "/api/common/register",
+                    "/api/common/captcha"
+                )
+                .check(r -> StpUtil.checkLogin());
+        })).addPathPatterns("/**");
     }
 
     /**

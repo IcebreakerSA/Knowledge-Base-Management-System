@@ -80,7 +80,7 @@ public class FileInfoServiceImpl extends ServiceImpl<FileInfoMapper, FileUpInfo>
 
             // 7. 根据文件类型确定存储路径
             String storagePath = "uploads/" + fileType.name().toLowerCase() + "/"
-                    + DateUtil.format(new Date(), "yyyyMMdd");
+                    + DateUtil.format(new Date(), "yyyyMMdd") + "/";
 
             // 8. 上传文件到存储系统
             org.dromara.x.file.storage.core.FileInfo upload = fileStorageService.of(new ByteArrayInputStream(fileBytes))

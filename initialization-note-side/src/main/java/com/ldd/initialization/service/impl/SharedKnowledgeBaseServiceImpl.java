@@ -74,7 +74,7 @@ public class SharedKnowledgeBaseServiceImpl extends ServiceImpl<SharedKnowledgeB
         knowledgeBase.setCreateTime(LocalDateTimeUtil.now());
         knowledgeBase.setUpdateTime(LocalDateTimeUtil.now());
 
-        if(StrUtil.isNotBlank(createDTO.getCoverUrl())){
+        if(StrUtil.isBlank(createDTO.getCoverUrl())){
             knowledgeBase.setCoverUrl("https://bpic.588ku.com/back_origin_min_pic/20/06/21/53cfa4e4505d62bbdce784b2ce6c4be8.jpg");
         }
         // 如果设置了密码，进行加密
@@ -139,11 +139,9 @@ public class SharedKnowledgeBaseServiceImpl extends ServiceImpl<SharedKnowledgeB
         // 更新知识库信息
         BeanUtils.copyProperties(updateDTO, knowledgeBase);
         
-        // 如果设置了新密码，进行加密
+        // 如果设置了新密码，进行加密；不填密码则保持原密码不变
         if (StrUtil.isNotBlank(updateDTO.getPassword())) {
             knowledgeBase.setPassword(DigestUtil.sha256Hex(updateDTO.getPassword()));
-        } else if (StrUtil.isBlank(updateDTO.getPassword())) {
-            knowledgeBase.setPassword(null); // 清空密码
         }
 
         this.updateById(knowledgeBase);
